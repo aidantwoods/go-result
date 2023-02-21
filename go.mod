@@ -1,3 +1,3 @@
-module aidanwoods.dev/result
+module aidanwoods.dev/go-result
 
 go 1.19
