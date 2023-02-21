@@ -5,34 +5,64 @@ type Option[T any] struct {
 	some  bool
 }
 
-func (r Option[T]) Value() *T {
-	return r.value
+func Some[T any](value T) Option[T] {
+	return Option[T]{
+		value: &value,
+		some:  true,
+	}
 }
 
-func (r Option[T]) Expect(panicMsg string) T {
-	if r.value == nil {
+func None[T any]() Option[T] {
+	return Option[T]{
+		value: nil,
+		some:  false,
+	}
+}
+
+func NewOptionFromPtr[T any](t *T) Option[T] {
+	if t != nil {
+		return Some(*t)
+	} else {
+		return None[T]()
+	}
+}
+
+func (o Option[T]) IsSome() bool {
+	return o.some
+}
+
+func (o Option[T]) IsNone() bool {
+	return !o.IsSome()
+}
+
+func (o Option[T]) PtrRepr() *T {
+	return o.value
+}
+
+func (o Option[T]) Expect(panicMsg string) T {
+	if o.value == nil {
 		panic(panicMsg)
 	} else {
-		return *r.value
+		return *o.value
 	}
 }
 
-func (r Option[T]) Unwrap() T {
-	return r.Expect("value was not present in result")
+func (o Option[T]) Unwrap() T {
+	return o.Expect("value was not present in option")
 }
 
-func (r Option[T]) UnwrapOr(defaultValue T) T {
-	if r.value == nil {
+func (o Option[T]) UnwrapOr(defaultValue T) T {
+	if o.value == nil {
 		return defaultValue
 	} else {
-		return *r.value
+		return o.Unwrap()
 	}
 }
 
-func (r Option[T]) UnwrapOrElse(defaultValue T) T {
-	if r.value == nil {
+func (o Option[T]) UnwrapOrElse(defaultValue T) T {
+	if o.value == nil {
 		return defaultValue
 	} else {
-		return *r.value
+		return o.Unwrap()
 	}
 }
