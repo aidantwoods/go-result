@@ -10,5 +10,5 @@ func Compose[T, U, V any](fn1 func(T) U, fn2 func(U) V) func(T) V {
 }
 
 func ErrMapUp[E error](fn func(error) E) func(error) error {
-	return func(err error) error { return err }
+	return func(err error) error { return fn(err) }
 }
