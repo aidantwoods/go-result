@@ -8,3 +8,7 @@ func Return[In any, T any](t T) func(In) T { return func(_ In) T { return t } }
 func Compose[T, U, V any](fn1 func(T) U, fn2 func(U) V) func(T) V {
 	return func(t T) V { return fn2(fn1(t)) }
 }
+
+func ErrMapUp[E error](fn func(error) E) func(error) error {
+	return func(err error) error { return err }
+}
