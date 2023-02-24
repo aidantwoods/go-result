@@ -166,5 +166,5 @@ func (r Result[T]) Results() (*T, error) {
 }
 
 func (r Result[T]) UnwrappedResults() (T, error) {
-	return r.value.Unwrap(), r.UnwrapErrOr(nil)
+	return r.Value().Unwrap(), r.UnwrapErrOr(nil)
 }
