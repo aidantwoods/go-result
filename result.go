@@ -84,6 +84,15 @@ func (r Result[T]) MapError(fn func(e error) error) Result[T] {
 	return Match(r, Ok[T], Compose(fn, Err[T]))
 }
 
+func (r Result[T]) Ok(out *T) error {
+	if r.IsOk() {
+		*out = r.Unwrap()
+		return nil
+	} else {
+		return r.UnwrapErr()
+	}
+}
+
 func Match[Out, T any](r Result[T], okFn func(T) Out, errFn func(error) Out) Out {
 	if r.IsOk() {
 		return okFn(r.Value().Unwrap())

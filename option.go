@@ -66,3 +66,12 @@ func (o Option[T]) UnwrapOrElse(defaultValue T) T {
 		return o.Unwrap()
 	}
 }
+
+func (o Option[T]) Some(out *T) bool {
+	if o.IsSome() {
+		*out = o.Unwrap()
+		return true
+	} else {
+		return false
+	}
+}
