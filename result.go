@@ -2,11 +2,15 @@ package t
 
 import "fmt"
 
+// Result[T] is a generic pseudo-enum, used for returning results with errors. The result type
+// eliminates the need to return nil pointers, sentinal type zero values, or partial results when
+// an error has occured. Instead, the result type can be in one of two states: Ok(T) or Err(error).
 type Result[T any] struct {
 	value Option[T]
 	err   Option[error]
 }
 
+// Create a successful Result[T]
 func Ok[T any](value T) Result[T] {
 	return Result[T]{
 		value: Some(value),
@@ -14,6 +18,7 @@ func Ok[T any](value T) Result[T] {
 	}
 }
 
+// Create an error Result[T]
 func Err[T any](err error) Result[T] {
 	return errGeneric[T](err)
 }
@@ -25,17 +30,19 @@ func errGeneric[T any, E error](err E) Result[T] {
 	}
 }
 
-func Wrap[T any](format string, err error) Result[T] {
-	return Result[T]{
-		value: None[T](),
-		err:   Some(fmt.Errorf(format, err)),
-	}
-}
+// func Wrap[T any](format string, err error) Result[T] {
+// 	return Result[T]{
+// 		value: None[T](),
+// 		err:   Some(fmt.Errorf(format, err)),
+// 	}
+// }
 
+// Is the result in the Ok state
 func (r Result[T]) IsOk() bool {
 	return !r.IsErr()
 }
 
+// Is the result in the Err state
 func (r Result[T]) IsErr() bool {
 	return r.err.IsSome()
 }
@@ -154,7 +161,7 @@ func NewResult[T any](value T, err error) Result[T] {
 
 func NewPtrResult[T any](value *T, err error) Result[T] {
 	result := Result[T]{
-		value: NewOptionFromPtr(value),
+		value: Maybe(value),
 		err:   maybeErrorToOption(err),
 	}
 
@@ -162,7 +169,7 @@ func NewPtrResult[T any](value *T, err error) Result[T] {
 }
 
 func (r Result[T]) Results() (*T, error) {
-	return r.Value().PtrRepr(), r.UnwrapErrOr(nil)
+	return r.Value().AsPtr(), r.UnwrapErrOr(nil)
 }
 
 func (r Result[T]) UnwrappedResults() (T, error) {

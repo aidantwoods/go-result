@@ -19,7 +19,7 @@ func None[T any]() Option[T] {
 	}
 }
 
-func NewOptionFromPtr[T any](t *T) Option[T] {
+func Maybe[T any](t *T) Option[T] {
 	if t != nil {
 		return Some(*t)
 	} else {
@@ -35,15 +35,15 @@ func (o Option[T]) IsNone() bool {
 	return !o.IsSome()
 }
 
-func (o Option[T]) PtrRepr() *T {
+func (o Option[T]) AsPtr() *T {
 	return o.value
 }
 
 func (o Option[T]) Expect(panicMsg string) T {
-	if o.value == nil {
-		panic(panicMsg)
-	} else {
+	if o.IsSome() {
 		return *o.value
+	} else {
+		panic(panicMsg)
 	}
 }
 
@@ -52,18 +52,18 @@ func (o Option[T]) Unwrap() T {
 }
 
 func (o Option[T]) UnwrapOr(defaultValue T) T {
-	if o.value == nil {
-		return defaultValue
-	} else {
+	if o.IsSome() {
 		return o.Unwrap()
+	} else {
+		return defaultValue
 	}
 }
 
 func (o Option[T]) UnwrapOrElse(defaultValue T) T {
-	if o.value == nil {
-		return defaultValue
-	} else {
+	if o.IsSome() {
 		return o.Unwrap()
+	} else {
+		return defaultValue
 	}
 }
 
