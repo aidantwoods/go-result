@@ -168,6 +168,10 @@ func NewPtrResult[T any](value *T, err error) Result[T] {
 	return result
 }
 
+func NewVoidResult(err error) Result[Void] {
+	return NewResult(void, err)
+}
+
 func (r Result[T]) Results() (*T, error) {
 	return r.Value().AsPtr(), r.UnwrapErrOr(nil)
 }
