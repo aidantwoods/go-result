@@ -159,6 +159,15 @@ func NewResult[T any](value T, err error) Result[T] {
 	return result
 }
 
+func NewTupleResult[T, U any](first T, second U, err error) Result[Tuple[T, U]] {
+	result := Result[Tuple[T, U]]{
+		value: Some(newTuple(first, second)),
+		err:   maybeErrorToOption(err),
+	}
+
+	return result
+}
+
 func NewPtrResult[T any](value *T, err error) Result[T] {
 	result := Result[T]{
 		value: Maybe(value),
