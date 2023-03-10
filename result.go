@@ -160,12 +160,7 @@ func NewResult[T any](value T, err error) Result[T] {
 }
 
 func NewTupleResult[T, U any](first T, second U, err error) Result[Tuple[T, U]] {
-	result := Result[Tuple[T, U]]{
-		value: Some(newTuple(first, second)),
-		err:   maybeErrorToOption(err),
-	}
-
-	return result
+	return NewResult(newTuple(first, second), err)
 }
 
 func NewPtrResult[T any](value *T, err error) Result[T] {
