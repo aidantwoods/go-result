@@ -180,6 +180,8 @@ func (r Result[T]) Results() (*T, error) {
 	return r.Value().AsPtr(), r.UnwrapErrOr(nil)
 }
 
-func (r Result[T]) UnwrappedResults() (T, error) {
-	return r.Value().Unwrap(), r.UnwrapErrOr(nil)
+// ResultsMapEmpty maps the None case of the result value to an empty T
+// (instead of a nil pointer to a T as is done by `Results()`)
+func (r Result[T]) ResultsMappingEmpty() (T, error) {
+	return r.Value().UnwrapOrElse(Empty[T]), r.UnwrapErrOr(nil)
 }
