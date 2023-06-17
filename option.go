@@ -52,19 +52,11 @@ func (o Option[T]) Unwrap() T {
 }
 
 func (o Option[T]) UnwrapOr(defaultValue T) T {
-	if o.IsSome() {
-		return o.Unwrap()
-	} else {
-		return defaultValue
-	}
+	return If(o, Id[T], Return0(defaultValue))
 }
 
-func (o Option[T]) UnwrapOrElse(defaultValue T) T {
-	if o.IsSome() {
-		return o.Unwrap()
-	} else {
-		return defaultValue
-	}
+func (o Option[T]) UnwrapOrElse(fn func() T) T {
+	return If(o, Id[T], fn)
 }
 
 func (o Option[T]) Some(out *T) bool {
@@ -73,5 +65,13 @@ func (o Option[T]) Some(out *T) bool {
 		return true
 	} else {
 		return false
+	}
+}
+
+func If[Out, T any](r Option[T], someFn func(T) Out, noneFn func() Out) Out {
+	if r.IsSome() {
+		return someFn(r.Unwrap())
+	} else {
+		return noneFn()
 	}
 }
