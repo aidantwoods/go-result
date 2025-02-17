@@ -36,7 +36,7 @@ func (o Option[T]) Expect(panicMsg string) T {
 }
 
 func (o Option[T]) Unwrap() T {
-	return o.Expect("value should be present when unwrap is called")
+	return o.Expect("value should be present when unwrap is")
 }
 
 func (o Option[T]) UnwrapOr(defaultValue T) T {
@@ -62,6 +62,14 @@ func If[Out, T any](r Option[T], someFn func(T) Out, noneFn func() Out) Out {
 	} else {
 		return noneFn()
 	}
+}
+
+func Map[T, U any](r Option[T], fn func(T) U) Option[U] {
+	return If(r, types.Compose(fn, Some[U]), None[U])
+}
+
+func FlatMap[T, U any](r Option[T], fn func(T) Option[U]) Option[U] {
+	return If(Map(r, fn), types.Id[Option[U]], None[U])
 }
 
 func Cast[T any](value any) Option[T] {

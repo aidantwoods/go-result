@@ -76,11 +76,11 @@ func (r Result[T]) Unwrap() T {
 }
 
 func (r Result[T]) UnwrapOr(defaultValue T) T {
-	return Match(r, types.Id[T], types.Return[error](defaultValue))
+	return If(r, types.Id[T], types.Return[error](defaultValue))
 }
 
 func (r Result[T]) UnwrapOrElse(fn func(error) T) T {
-	return Match(r, types.Id[T], fn)
+	return If(r, types.Id[T], fn)
 }
 
 func (r Result[T]) ExpectErr(panicMsg string) error {
@@ -93,7 +93,7 @@ func (r Result[T]) ExpectErr(panicMsg string) error {
 }
 
 func (r Result[T]) MapError(fn func(e error) error) Result[T] {
-	return Match(r, Ok[T], types.Compose(fn, Err[T]))
+	return If(r, Ok[T], types.Compose(fn, Err[T]))
 }
 
 func (r Result[T]) Ok(out *T) error {
@@ -105,7 +105,7 @@ func (r Result[T]) Ok(out *T) error {
 	}
 }
 
-func Match[Out, T any](r Result[T], okFn func(T) Out, errFn func(error) Out) Out {
+func If[Out, T any](r Result[T], okFn func(T) Out, errFn func(error) Out) Out {
 	if r.IsOk() {
 		return okFn(r.Value().Unwrap())
 	} else {
@@ -114,15 +114,19 @@ func Match[Out, T any](r Result[T], okFn func(T) Out, errFn func(error) Out) Out
 }
 
 func Map[T, U any](r Result[T], fn func(T) U) Result[U] {
-	return Match(r, types.Compose(fn, Ok[U]), Err[U])
+	return If(r, types.Compose(fn, Ok[U]), Err[U])
+}
+
+func FlatMap[T, U any](r Result[T], fn func(T) Result[U]) Result[U] {
+	return If(Map(r, fn), types.Id[Result[U]], Err[U])
 }
 
 func MapErr[T any, E error](fn func(error) E, r Result[T]) Result[T] {
-	return Match(r, Ok[T], types.Compose(fn, errGeneric[T, E]))
+	return If(r, Ok[T], types.Compose(fn, errGeneric[T, E]))
 }
 
 func AndThen[T, U any](r Result[T], fn func(T) Result[U]) Result[U] {
-	return Match(r, fn, Err[U])
+	return If(r, fn, Err[U])
 }
 
 func Map2[T, U, V any](r Result[T], s Result[U], fn func(T, U) V) Result[V] {
