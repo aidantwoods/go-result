@@ -8,6 +8,8 @@ due to constraints in the Go language.
 ## The Option Type
 `option.Option[T]` is a type which can be used to express a value or absence of a value. Use of this type is distinct mostly distinct from a pointer `*T` due to the absence of shared mutability.
 
+The zero value of `option.Option[T]` is defined to be identical to `option.None[T]()` i.e. the option has no value.
+
 ## The Result Type
 `result.Result[T]` is a new type which can be used to express a value which can either be in an `result.Ok(T)`
 state, or an `result.Err(error)` state. Because Go makes extensive use of wrapped errors, and already has
@@ -18,3 +20,5 @@ The result type cannot simultaneously have no `Ok` value and no error. If the
 result type is explicitly instantiated with `result.Err(nil)` or is instantiated as a
 zero value of `result.Result[T]`, then `result.Result[T]` is defined to be in an error state,
 and will have a value of `result.ErrEmptyResult` when queried.
+
+The `Err() error` function on a `result.Result[T]` will return `nil` if and only if `IsErr()` also returns `false`.
