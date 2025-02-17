@@ -1,42 +1,30 @@
-package t
+package option
+
+import "aidanwoods.dev/go-result/types"
 
 type Option[T any] struct {
-	value *T
-	some  bool
+	isSome bool
+	value  *T
 }
 
 func Some[T any](value T) Option[T] {
 	return Option[T]{
-		value: &value,
-		some:  true,
+		isSome: true,
+		value:  &value,
 	}
 }
 
+// None is explicitly identical to the zero value of Option[T]
 func None[T any]() Option[T] {
-	return Option[T]{
-		value: nil,
-		some:  false,
-	}
-}
-
-func Maybe[T any](t *T) Option[T] {
-	if t != nil {
-		return Some(*t)
-	} else {
-		return None[T]()
-	}
+	return Option[T]{}
 }
 
 func (o Option[T]) IsSome() bool {
-	return o.some
+	return o.isSome
 }
 
 func (o Option[T]) IsNone() bool {
 	return !o.IsSome()
-}
-
-func (o Option[T]) AsPtr() *T {
-	return o.value
 }
 
 func (o Option[T]) Expect(panicMsg string) T {
@@ -48,15 +36,15 @@ func (o Option[T]) Expect(panicMsg string) T {
 }
 
 func (o Option[T]) Unwrap() T {
-	return o.Expect("value was not present in option")
+	return o.Expect("value should be present when unwrap is called")
 }
 
 func (o Option[T]) UnwrapOr(defaultValue T) T {
-	return If(o, Id[T], Return0(defaultValue))
+	return If(o, types.Id[T], types.Return0(defaultValue))
 }
 
 func (o Option[T]) UnwrapOrElse(fn func() T) T {
-	return If(o, Id[T], fn)
+	return If(o, types.Id[T], fn)
 }
 
 func (o Option[T]) Some(out *T) bool {
@@ -73,5 +61,13 @@ func If[Out, T any](r Option[T], someFn func(T) Out, noneFn func() Out) Out {
 		return someFn(r.Unwrap())
 	} else {
 		return noneFn()
+	}
+}
+
+func Cast[T any](value any) Option[T] {
+	if t, ok := value.(T); ok {
+		return Some(t)
+	} else {
+		return None[T]()
 	}
 }
