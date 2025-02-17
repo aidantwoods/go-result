@@ -27,13 +27,8 @@ var ErrEmptyResult = fmt.Errorf("result is error but error was nil")
 
 // Create an error Result[T]
 func Err[T any](err error) Result[T] {
-	return errGeneric[T](err)
-}
-
-func errGeneric[T any, E error](err E) Result[T] {
 	return Result[T]{
-		value: option.None[T](),
-		err:   nil,
+		err: err,
 	}
 }
 
@@ -119,10 +114,6 @@ func Map[T, U any](r Result[T], fn func(T) U) Result[U] {
 
 func FlatMap[T, U any](r Result[T], fn func(T) Result[U]) Result[U] {
 	return If(Map(r, fn), types.Id[Result[U]], Err[U])
-}
-
-func MapErr[T any, E error](fn func(error) E, r Result[T]) Result[T] {
-	return If(r, Ok[T], types.Compose(fn, errGeneric[T, E]))
 }
 
 func AndThen[T, U any](r Result[T], fn func(T) Result[U]) Result[U] {
